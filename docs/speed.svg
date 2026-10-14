@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="344" viewBox="0 0 880 344" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <rect x="1" y="1" width="878" height="342" rx="22" fill="#141219" stroke="#2c2638" stroke-width="2"/>
+  <text x="32" y="48" fill="#ffffff" font-size="21" font-weight="800">Transcribing 25 minutes of meeting audio</text>
+  <text x="32" y="72" fill="#a99fc0" font-size="13">Whisper large-v3 Turbo · MacBook with a base Apple M5, 16 GB · shorter is better</text>
+  <text x="32" y="122" fill="#ffffff" font-size="14" font-weight="800">swag-transcribe</text>
+  <text x="32" y="140" fill="#a99fc0" font-size="12">GPU + Neural Engine together</text>
+  <rect x="300" y="108" width="110" height="30" rx="9" fill="#d4ff40" stroke="#111019" stroke-width="2.5"/>
+  <text x="423" y="129" fill="#d4ff40" font-size="14" font-weight="800">50 s · 30× realtime</text>
+  <text x="32" y="184" fill="#ffffff" font-size="14" font-weight="700">mlx-whisper</text>
+  <text x="32" y="202" fill="#a99fc0" font-size="12">Python, GPU</text>
+  <rect x="300" y="170" width="179" height="30" rx="9" fill="#b89cff" fill-opacity="0.55"/>
+  <text x="492" y="191" fill="#d9ccff" font-size="14" font-weight="700">81 s · 19×</text>
+  <text x="32" y="246" fill="#ffffff" font-size="14" font-weight="700">WhisperKit, out of the box</text>
+  <text x="32" y="264" fill="#a99fc0" font-size="12">Neural Engine, default settings</text>
+  <rect x="300" y="232" width="261" height="30" rx="9" fill="#b89cff" fill-opacity="0.4"/>
+  <text x="574" y="253" fill="#d9ccff" font-size="14" font-weight="700">118 s · 13×</text>
+  <text x="32" y="308" fill="#ffffff" font-size="14" font-weight="700">WhisperKit, GPU only</text>
+  <text x="32" y="326" fill="#a99fc0" font-size="12">default settings</text>
+  <rect x="300" y="294" width="360" height="30" rx="9" fill="#b89cff" fill-opacity="0.25"/>
+  <text x="673" y="315" fill="#d9ccff" font-size="14" font-weight="700">163 s · 9×</text>
+  <path d="M820 40 Q822 54 836 56 Q822 58 820 72 Q818 58 804 56 Q818 54 820 40 Z" fill="#ff5c8f" stroke="#111019" stroke-width="2"/>
+  <path d="M846 74 Q847 81 854 82 Q847 83 846 90 Q845 83 838 82 Q845 81 846 74 Z" fill="#d4ff40" stroke="#111019" stroke-width="1.5"/>
+</svg>

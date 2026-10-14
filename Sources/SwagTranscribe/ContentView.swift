@@ -12,20 +12,24 @@ struct ContentView: View {
         ("es", localized("SPANISH", "SPAANS")),
     ]
 
-    @StateObject private var transcriber = Transcriber()
+    @StateObject private var transcriber: Transcriber
     @StateObject private var live = LiveTranscriber()
     @State private var file: URL?
     @State private var language = "auto"
     @State private var model = WhisperModel.turbo
-    @State private var speakers = false
+    @State private var speakers: Bool
     @State private var picking = false
     @State private var tab = ResultTab.transcript
     @State private var showHelp: Bool
     /// Length of the chosen file, for the time estimate.
     @State private var audioSeconds: Double?
 
-    init(showHelp: Bool = false) {
+    /// The parameters are for `--render` screenshots; the app uses the defaults.
+    init(showHelp: Bool = false, file: URL? = nil, speakers: Bool = false, transcriber: Transcriber? = nil) {
         _showHelp = State(initialValue: showHelp)
+        _speakers = State(initialValue: speakers)
+        _file = State(initialValue: file)
+        _transcriber = StateObject(wrappedValue: transcriber ?? Transcriber())
     }
 
     private var shown: String {

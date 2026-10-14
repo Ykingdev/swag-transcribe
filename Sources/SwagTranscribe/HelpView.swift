@@ -69,15 +69,8 @@ struct HelpView: View {
             )),
     ]
 
-    /// False only for `--render help`: ImageRenderer draws scroll views empty.
-    var scrolls = true
-
     var body: some View {
-        if scrolls {
-            ScrollView { page }
-        } else {
-            page
-        }
+        ScrollView { page }
     }
 
     private var page: some View {

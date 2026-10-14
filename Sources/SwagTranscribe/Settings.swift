@@ -15,8 +15,8 @@ func localized(_ english: String, _ dutch: String) -> String {
 
 /// WhisperKit CoreML variants on argmaxinc/whisperkit-coreml, downloaded on first use.
 enum WhisperModel: String, CaseIterable, Identifiable {
-    case turbo = "openai_whisper-large-v3-v20240930_turbo"  // ~1.6 GB
-    case largeV3 = "openai_whisper-large-v3-v20240930"  // ~3 GB
+    case turbo = "openai_whisper-large-v3-v20240930_turbo"  // 1.5 GB
+    case largeV3 = "openai_whisper-large-v3-v20240930"  // 1.5 GB
 
     var id: String { rawValue }
     var label: String {

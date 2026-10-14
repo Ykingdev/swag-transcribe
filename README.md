@@ -1,206 +1,230 @@
-# swag-transcribe
+<p align="center">
+  <img src="docs/logo.png" alt="swag-transcribe" width="440">
+</p>
 
-A native macOS app that turns audio and video into text, on your own Mac. It runs OpenAI's Whisper through
-[WhisperKit](https://github.com/argmaxinc/WhisperKit) (Core ML), can tell speakers apart with
-[FluidAudio](https://github.com/FluidInference/FluidAudio), and wears a Y2K media-player skin.
+<p align="center">
+  <b>Turn recordings into text on your Mac. Fast, private, and dressed like it's 2003.</b>
+</p>
 
-Nothing leaves the Mac. The only network traffic is the one-time model download.
+<p align="center">
+  <img alt="macOS 15+" src="https://img.shields.io/badge/macOS-15%2B-7338f2?style=for-the-badge&logo=apple&logoColor=white">
+  <img alt="Apple Silicon" src="https://img.shields.io/badge/Apple%20Silicon-native-b89cff?style=for-the-badge">
+  <img alt="Swift 6" src="https://img.shields.io/badge/Swift-6-ff5c8f?style=for-the-badge&logo=swift&logoColor=white">
+  <img alt="100% offline" src="https://img.shields.io/badge/100%25-offline-d4ff40?style=for-the-badge&labelColor=111019">
+  <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-444?style=for-the-badge">
+</p>
 
-## What it does
+<p align="center">
+  <img src="docs/player.png" alt="The swag-transcribe player with a transcript shown as chat bubbles" width="820">
+</p>
 
-- **File transcription** of anything macOS can decode: mp3, m4a, wav, mp4, mov and more.
-- **Speaker recognition**: every line gets a label like "Speaker 1", shown as colored chat bubbles.
-- **Two outputs**: readable text, and SRT subtitles (SubRip Text) with timestamps for video editors.
-- **Live mode**: transcribes the microphone as you talk, with Apple's on-device speech recognition.
-- **Time estimate**: shows how long a file will take before you start, and counts down while it works.
-- **English and Dutch UI**, following the language of the Mac.
+swag-transcribe runs OpenAI's Whisper on your own Mac with [WhisperKit](https://github.com/argmaxinc/WhisperKit),
+figures out who is talking with [FluidAudio](https://github.com/FluidInference/FluidAudio), and shows the result as
+a colorful group chat. Your audio never leaves the machine.
 
-## Requirements
+## ✦ Highlights
 
-- Apple Silicon Mac with macOS 15 or later.
-- Xcode or the Xcode Command Line Tools with Swift 6.
-- About 1.6 GB of disk space for the Turbo model, 3 GB more for Large-v3.
+|  |  |
+|---|---|
+| ⚡ **30× realtime** | 25 minutes of audio in 50 seconds on a base M5 MacBook, by running the GPU and the Neural Engine at the same time. |
+| 💬 **Who said what** | Speaker recognition at word level, shown as chat bubbles with one color per speaker. |
+| 🎬 **Subtitles included** | Export plain text, or SRT subtitles with timestamps for YouTube, Premiere, CapCut or VLC. |
+| 🎙️ **Live mode** | Talk and watch your words appear, using Apple's on-device speech recognition. |
+| ⏱️ **Honest countdown** | Learns how fast your Mac is and tells you how long a file will take, within a few percent. |
+| 🔒 **Private** | No accounts, no uploads, no cloud. Only the models are downloaded, once. |
+| 🌍 **English and Dutch** | The interface follows the language of your Mac. |
 
-## Build and run
+## ⚡ Speed
+
+<p align="center">
+  <img src="docs/speed.svg" alt="Bar chart: swag-transcribe 50 s, mlx-whisper 81 s, WhisperKit out of the box 118 s, WhisperKit on the GPU only 163 s" width="820">
+</p>
+
+Every setup transcribed the same 25-minute Dutch meeting with the same model, Whisper large-v3 Turbo, on a base
+M5 MacBook with 16 GB of RAM. Times include loading the model.
+
+| Setup | Time | Speed | Peak memory |
+|---|---:|---:|---:|
+| **swag-transcribe** | **50 s** | **30× realtime** | **1.3 GB** |
+| mlx-whisper, Python on the GPU | 81 s | 19× | 0.9 GB |
+| WhisperKit with default settings, Neural Engine | 118 s | 13× | 0.75 GB |
+| WhisperKit with default settings, GPU only | 163 s | 9× | 4.0 GB |
+
+Turning on speaker recognition adds about 17 seconds for the same file.
+
+### How it got from 118 to 50 seconds
+
+| Step | Time | What changed |
+|---|---:|---|
+| WhisperKit out of the box | 118 s | Starting point |
+| Stop wasting work | 81 s | Whisper re-decoded almost every window of Dutch audio because one threshold was too strict. Turning it off also gave 13% more words. |
+| Decoder on the GPU | 61 s | The Neural Engine runs parallel decoders one at a time; the GPU runs them together. |
+| Both chips at once | 50 s | The audio is split at a quiet moment. One half runs on the GPU, the other on the Neural Engine, at the same time. |
+
+Not every Mac is built the same. A Pro or Max chip has a much bigger GPU but the same Neural Engine. So the first
+time you transcribe, swag-transcribe times every option on two minutes of your file and keeps the winner.
+
+## 🚀 Get started
+
+You need an Apple Silicon Mac with macOS 15 or later and Xcode or the Xcode Command Line Tools.
 
 ```sh
+git clone https://github.com/Ykingdev/swag-transcribe.git
+cd swag-transcribe
 ./build.sh
 open swag-transcribe.app
 ```
 
-`build.sh` compiles a release build, renders the app icon from SwiftUI, adds the translations and signs the
-bundle ad hoc. The first build downloads and compiles the Swift packages, which takes a few minutes.
+The first build fetches and compiles the Swift packages, which takes a few minutes. The first transcription
+downloads the Turbo model (about 1.5 GB) and tunes itself to your Mac, which adds about half a minute once.
 
-Models are downloaded on first use to `~/Documents/huggingface/models/argmaxinc/whisperkit-coreml/`. Speaker
-models go to FluidAudio's folder in `~/Library/Application Support/`.
+## 🎛️ Using it
 
-## Using it
+<p align="center">
+  <img src="docs/help.png" alt="The built-in help page with eight sticker cards" width="620">
+</p>
 
-1. Click **File**, or drop a file onto the player.
-2. Optionally click the settings on the right of the screen: language, model, speakers.
-3. Press the round **play** button. Press it again to stop.
-4. Switch between **Text** and **SRT**, then **Copy** or **Save**.
+1. Click **File**, or drop an audio or video file onto the player.
+2. Click the settings on the right of the screen to pick a language, a model or speaker recognition.
+3. Press the big round **play** button. Press it again to stop.
+4. Read the result as **Text** or **SRT**, then **Copy** or **Save** it.
 
-Drag the chrome title bar or the purple frame to move the window. The **?** button explains everything inside
-the app.
+Move the window by dragging the chrome title bar or the purple frame. The **?** button opens the help page above.
 
-The very first transcription on a Mac takes longer. The model is downloaded, macOS prepares it for the chip,
-and the app benchmarks which chip parts are fastest on this machine. That benchmark runs once and is
-remembered.
+| Model | Download | Best for |
+|---|---:|---|
+| Turbo | 1.5 GB | Everyday use. Fast and very accurate. |
+| Large-v3 | 1.5 GB | Difficult audio, when every word counts. About 1.4 times slower on an M5. |
 
-## How it works
+## 🧠 How it works
 
+```mermaid
+flowchart LR
+    A[Audio or video file] --> B{Speakers on?}
+    B -- yes --> C[FluidAudio<br/>who talks when]
+    B -- no --> D
+    C --> D[Cut at a quiet moment]
+    D --> E[Part 1<br/>Whisper on GPU]
+    D --> F[Part 2<br/>Whisper on Neural Engine]
+    E --> G[Match words<br/>to speakers]
+    F --> G
+    G --> H[Chat bubbles]
+    G --> I[SRT subtitles]
 ```
-audio file
-   │
-   ├─▶ FluidAudio diarization (optional)      pyannote segmentation + WeSpeaker embeddings, Core ML
-   │        → speaker turns
-   │
-   ├─▶ WhisperKit, Whisper large-v3 Turbo     audio cut at a quiet point into two parts:
-   │        part 1: encoder on Neural Engine, decoder on GPU
-   │        part 2: encoder and decoder on Neural Engine
-   │        both parts run at the same time
-   │
-   └─▶ formatting                              words matched to speaker turns,
-            → text paragraphs, chat bubbles, SRT cues
-```
 
-### Source layout
+<details>
+<summary><b>The design decisions, in detail</b></summary>
+
+<br>
+
+**Native instead of Python.** The first version called mlx-whisper from a Python environment. WhisperKit and
+FluidAudio make it one self-contained app that uses the Neural Engine and needs no setup.
+
+**Memory is not the bottleneck.** Most of the time goes into the decoder, which writes text one token at a time.
+Each token takes about 8.7 ms, almost all of it call overhead rather than math. A smaller quantized model
+(632 MB instead of 1.5 GB) was not faster, because the Neural Engine expands the weights to 16-bit anyway.
+
+**The first-token threshold is off.** WhisperKit re-decodes a 30-second window at a higher temperature when the
+first token looks unlikely. On Dutch meetings that fired 84 times for 73 windows. Turning it off made
+transcription 31% faster, gave 13% more words, and flagged zero segments as repetitive or unsure. The thresholds
+for repetition and average probability stay on. Turning the probability threshold off as well let garbled and
+repeated lines through.
+
+**Fewer tasks than CPU cores.** WhisperKit's sampler blocks one Swift concurrency thread per task, and Swift has
+one such thread per CPU core. Two pipelines with 16 tasks each deadlocked a 10-core M5. The app uses the core
+count minus two, split over the pipelines. 8, 16 and 32 tasks measured equally fast.
+
+**Speakers at word level.** Speaker turns are matched to Whisper's word timestamps, so a change of speaker in the
+middle of a sentence lands in the right place. A word in a silence between two turns goes to the nearest
+speaker. The clustering threshold of 0.6 found exactly four speakers on a four-speaker test, where 0.7 merged
+them into two.
+
+**A countdown that learns.** After every file longer than a minute, the app stores how many seconds of work one
+second of audio took, per model and with or without speakers. During a run it counts finished chunks, because
+WhisperKit reports times relative to each chunk. The countdown starts from the learned estimate and hands over to
+the measured pace by 50% progress. Short runs keep the learned estimate, because chunks finish in waves.
+
+**Two languages in code.** With exactly two languages, a small `localized(english, dutch)` function is simpler
+than a String Catalog, which would need a resource bundle next to the hand-built app. System dialogs and
+permission prompts are still translated through `en.lproj` and `nl.lproj`.
+
+</details>
+
+<details>
+<summary><b>Project layout</b></summary>
+
+<br>
 
 | File | What it holds |
 |---|---|
 | `SwagTranscribeApp.swift` | App entry, plus the headless `--cli` and `--render` modes |
-| `Transcriber.swift` | Diarization, model loading, the compute-path benchmark, progress and countdown |
+| `Transcriber.swift` | Diarization, model loading, the compute benchmark, progress and countdown |
 | `Formatting.swift` | Pure functions: SRT timestamps, quiet-point search, speaker matching, transcript layout |
-| `Settings.swift` | Models, compute paths, UI language, stored settings, environment overrides |
+| `Settings.swift` | Models, compute paths, interface language, stored settings, environment overrides |
 | `WaitTime.swift` | Learned speed per Mac, duration formatting, things to do while waiting |
 | `LiveTranscriber.swift` | Microphone transcription with Apple's Speech framework |
 | `ContentView.swift` | The player layout and its actions |
 | `ChatTranscript.swift` | Speaker turns as chat bubbles |
-| `HelpView.swift` | The in-app help page |
-| `Skin.swift` | Chassis shape, glossy buttons, LCD text, progress bar, marquee, speaker colors, window setup |
-| `Logo.swift` | The logo and the app icon, drawn in SwiftUI |
+| `HelpView.swift` | The help page |
+| `Skin.swift` | Chassis, glossy buttons, LCD text, progress bar, marquee, speaker colors, window setup |
+| `Logo.swift` | Logo and app icon, drawn in SwiftUI |
 
-## Why it is built this way
+</details>
 
-All numbers below were measured on a base M5 MacBook with 16 GB of RAM, on a 25-minute Dutch meeting recording.
+<details>
+<summary><b>Development</b></summary>
 
-### Native instead of Python
-
-The first version called `mlx_whisper` in a Python virtual environment. Moving to WhisperKit and FluidAudio
-makes the app one self-contained bundle that runs on any Apple Silicon Mac without a Python setup, and lets it
-use the Neural Engine.
-
-### Memory is not the bottleneck
-
-The app peaks at 0.75 to 2.6 GB depending on the compute path. Most of the time goes into the decoder, which
-writes text one token at a time. Each token takes about 8.7 ms, almost all of it call overhead rather than
-math. A smaller quantized model (632 MB instead of 1.5 GB) was not faster, because the Neural Engine expands
-the weights back to 16-bit anyway.
-
-### Whisper's first-token threshold is off
-
-WhisperKit re-decodes a 30-second window at a higher temperature when the first token's probability is below
-a fixed threshold. On Dutch meeting audio that fired for 84 of 73 windows, so almost everything was decoded
-twice. Turning that one threshold off made transcription 31% faster and produced 13% more words, with zero
-segments flagged as repetitive or low-confidence. The other two safety thresholds, for repetition and average
-probability, stay on. With the first one off they never fired on this audio. Turning the probability threshold
-off as well let garbled and repeated lines into the text.
-
-### Two pipelines on two chip parts
-
-The Neural Engine runs parallel decoders one after another, while the GPU runs them at the same time. The best
-setup on the M5 is to use both: the audio is cut at the quietest moment near a computed split point, one half
-decodes on the GPU and the other on the Neural Engine, and the timestamps of the second half are shifted back
-into file time.
-
-| Compute path | Time for 25 min of audio |
-|---|---|
-| Everything on the GPU | 163 s |
-| Everything on the Neural Engine | 81 s |
-| Encoder on Neural Engine, decoder on GPU | 61 to 65 s |
-| Two pipelines at the same time | 50 s |
-
-The fastest path differs per Mac. A Pro or Max chip has a bigger GPU but the same Neural Engine as the base
-chip. So on first use the app times all four paths on the first two minutes of your file and remembers the
-winner. The split ratio comes from the measured speed of the two pipelines.
-
-### Fewer tasks than CPU cores
-
-WhisperKit's sampler blocks one Swift concurrency thread per task, and Swift has one such thread per CPU core.
-Two pipelines with 16 tasks each starved the pool on the 10-core M5 and deadlocked. The app now uses the core
-count minus two, split over the pipelines. 8, 16 and 32 tasks measured equally fast, so nothing is lost.
-
-### Speakers at word level
-
-Speaker turns from diarization are matched to Whisper's word timestamps, so a speaker change in the middle of a
-Whisper segment is placed correctly. A word that falls in a silence between two turns gets the nearest speaker.
-Speaker clustering uses a threshold of 0.6, which found exactly four speakers on a four-speaker test recording,
-where 0.7 merged them into two.
-
-### A countdown that learns
-
-After every file longer than a minute, the app stores how many seconds of work one second of audio took, per
-model and with or without speakers. Model loading and the benchmark are left out. During a run, progress comes
-from WhisperKit's count of finished chunks, because WhisperKit reports segment times relative to each chunk
-rather than to the file. The countdown starts from the learned estimate and hands over to the measured pace by
-50% progress. On runs under half a minute it keeps the learned estimate, because chunks finish in waves and the
-measured pace jumps around. In tests it stayed within a few percent of the real finish time.
-
-### Two languages in code
-
-The UI has exactly two languages, so strings are picked with a small `localized(english, dutch)` function
-instead of a String Catalog. A catalog would need a resource bundle next to the executable, which complicates
-the hand-built app bundle and its signature. The system dialogs and permission prompts are still translated
-through `en.lproj` and `nl.lproj` in the bundle.
-
-## Development
+<br>
 
 ```sh
-swift build                                  # debug build
-swift test                                   # unit tests for the pure functions
-swift format lint -r Sources Tests Package.swift
+swift build                                        # debug build
+swift test                                         # unit tests
+swift format lint -r Sources Tests Package.swift   # style check, settings in .swift-format
 ```
 
-The code style is in `.swift-format`: four-space indentation and 120 characters per line.
-
-### Headless modes
+**Headless modes**
 
 ```sh
 APP=swag-transcribe.app/Contents/MacOS/SwagTranscribe
-$APP --cli recording.m4a --speakers          # prints status, text, SRT, decode stats and timings
-$APP --render ui screenshot.png              # icon | logo | ui | help
+$APP --cli recording.m4a --speakers   # status, countdown, text, SRT, decode stats and timings
+$APP --render player docs/player.png  # icon | logo | ui | help | player
 ```
 
-`--render` uses SwiftUI's `ImageRenderer`, which draws scroll views empty, so the transcript area stays blank
-in `ui` renders.
+Add `-AppleLanguages "(nl)"` to render the Dutch interface.
 
-### Environment overrides for benchmarking
+**Environment overrides for benchmarking**
 
 | Variable | Effect |
 |---|---|
 | `WHISPER_COMPUTE` | Force a compute path: `gpu`, `ane`, `mix` or `dual` |
 | `WHISPER_MODEL` | Any variant name from `argmaxinc/whisperkit-coreml` |
 | `WHISPER_LANG` | Spoken language for `--cli`, for example `nl` |
-| `WHISPER_SPLIT` | GPU share of the audio in `dual`, for example `0.55` |
+| `WHISPER_SPLIT` | Share of the audio for the GPU half in `dual`, for example `0.55` |
 | `WHISPER_WORKERS` | Concurrent tasks per run |
 | `WHISPER_FALLBACKS` | Number of temperature fallbacks |
 | `WHISPER_FIRSTTOKEN`, `WHISPER_LOGPROB`, `WHISPER_COMPRESSION` | Decoding thresholds, a number or `none` |
-| `WHISPER_CHUNKING` | `none` to disable voice-activity chunking |
-| `DIARIZER_THRESHOLD` | Speaker clustering threshold; lower finds more speakers |
+| `WHISPER_CHUNKING` | `none` to turn off voice-activity chunking |
+| `DIARIZER_THRESHOLD` | Speaker clustering; lower finds more speakers |
 
-### Stored settings
+**Stored settings**
 
 ```sh
-defaults read dev.webads.swag-transcribe                  # benchmark winner, split and learned speeds
-defaults delete dev.webads.swag-transcribe compute        # benchmark again on the next file
+defaults read dev.webads.swag-transcribe              # benchmark winner, split and learned speeds
+defaults delete dev.webads.swag-transcribe compute    # benchmark again on the next file
 ```
 
-## Ideas for later
+Models are stored in `~/Documents/huggingface/models/argmaxinc/whisperkit-coreml/`, speaker models in FluidAudio's
+folder in `~/Library/Application Support/`.
 
-- **Decoder export for the Neural Engine.** Keeping the decoder's key-value cache on the chip and decoding
-  several windows per call would attack the 8.7 ms per-token overhead directly. This is an estimated 3 to 5
-  times faster decoder, but it needs a WhisperKit fork and a new Core ML export.
-- **Fine-tuning on Dutch.** A model that is more confident on Dutch meeting audio would need fewer fallbacks
-  and make fewer mistakes.
-- **Live speaker labels.** These would need streaming diarization.
+</details>
+
+## 🛣️ Ideas for later
+
+- **A decoder made for the Neural Engine.** Keeping the decoder's memory on the chip and decoding several windows
+  per call would attack the 8.7 ms per-token overhead directly. Estimated 3 to 5 times faster decoding.
+- **Fine-tuning on Dutch**, so the model is more confident on Dutch meetings and makes fewer mistakes.
+- **Speaker labels in live mode**, which needs streaming speaker recognition.
+
+## License
+
+MIT, see [LICENSE](LICENSE).

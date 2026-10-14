@@ -18,7 +18,7 @@ struct SwagTranscribeApp: App {
 
 /// Headless modes for development, next to the normal window:
 ///   --cli <audio> [--speakers]          transcribe and print text, SRT, decode stats and timings
-///   --render icon|logo|ui|help <out.png>     render a view to PNG (build.sh uses `icon` for the app icon)
+///   --render icon|logo|ui|help|player <out.png>     render a view to PNG (build.sh uses `icon` for the app icon)
 enum LaunchMode {
     @MainActor static func start() {
         let arguments = CommandLine.arguments
@@ -41,23 +41,52 @@ enum LaunchMode {
     }
 
     @MainActor private static func render(_ what: String, to url: URL) {
-        let renderer: ImageRenderer<AnyView>
+        let image: NSBitmapImageRep?
         switch what {
-        case "icon": renderer = ImageRenderer(content: AnyView(AppIconView()))
-        case "logo": renderer = ImageRenderer(content: AnyView(LogoView(height: 200).padding(20)))
-        case "help":
-            renderer = ImageRenderer(
-                content: AnyView(HelpView(scrolls: false).frame(width: 686).background(Skin.screen)))
-        default: renderer = ImageRenderer(content: AnyView(ContentView()))
+        case "icon": image = snapshot(AppIconView(), size: CGSize(width: 1024, height: 1024), scale: 1)
+        case "logo": image = snapshot(LogoView(height: 200).padding(20), size: CGSize(width: 580, height: 240))
+        case "help": image = snapshot(ContentView(showHelp: true), size: Skin.size)
+        case "player":
+            let sample = Transcriber()
+            sample.text = localized(
+                "Speaker 1: Morning! Shall we start with the new dashboard?\n\n"
+                    + "Speaker 2: Yes. I moved the date picker to month to date, like we said.\n\n"
+                    + "Speaker 3: Nice. Can we still go back 31 days for the daily revenue?\n\n"
+                    + "Speaker 2: Sure, that is one click now.\n\nSpeaker 1: Perfect, then let's ship it on Friday.",
+                "Spreker 1: Goedemorgen! Zullen we met het nieuwe dashboard beginnen?\n\n"
+                    + "Spreker 2: Ja. Ik heb de datumkiezer op maand tot nu gezet, zoals afgesproken.\n\n"
+                    + "Spreker 3: Mooi. Kunnen we voor de dagomzet nog steeds 31 dagen terug?\n\n"
+                    + "Spreker 2: Zeker, dat is nu één klik.\n\nSpreker 1: Top, dan zetten we het vrijdag live.")
+            let file = URL(fileURLWithPath: "/Users/you/Recordings/team-meeting.m4a")
+            image = snapshot(ContentView(file: file, speakers: true, transcriber: sample), size: Skin.size)
+        default: image = snapshot(ContentView(), size: Skin.size)
         }
-        renderer.scale = what == "icon" ? 1 : 2
-        guard let tiff = renderer.nsImage?.tiffRepresentation,
-            let png = NSBitmapImageRep(data: tiff)?.representation(using: .png, properties: [:])
-        else {
+        guard let png = image?.representation(using: .png, properties: [:]) else {
             print("render failed: \(what)")
             return
         }
         try? png.write(to: url)
+    }
+
+    /// Draws a view through AppKit in an offscreen window, so scroll views and native controls render too
+    /// (SwiftUI's ImageRenderer leaves them blank).
+    @MainActor private static func snapshot(_ view: some View, size: CGSize, scale: CGFloat = 2) -> NSBitmapImageRep? {
+        let host = NSHostingView(rootView: view.frame(width: size.width, height: size.height))
+        host.frame = CGRect(origin: .zero, size: size)
+        let window = NSWindow(contentRect: host.frame, styleMask: .borderless, backing: .buffered, defer: false)
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.contentView = host
+        host.layoutSubtreeIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.5))  // let SwiftUI lay out and draw once
+        let pixels = NSBitmapImageRep(
+            bitmapDataPlanes: nil, pixelsWide: Int(size.width * scale), pixelsHigh: Int(size.height * scale),
+            bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
+            bytesPerRow: 0, bitsPerPixel: 0)
+        guard let pixels else { return nil }
+        pixels.size = size
+        host.cacheDisplay(in: host.bounds, to: pixels)
+        return pixels
     }
 
     @MainActor private static func transcribe(_ file: URL, speakers: Bool) async -> Bool {
