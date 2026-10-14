@@ -49,15 +49,15 @@ enum LaunchMode {
         case "player":
             let sample = Transcriber()
             sample.text = localized(
-                "Speaker 1: Morning! Shall we start with the new dashboard?\n\n"
-                    + "Speaker 2: Yes. I moved the date picker to month to date, like we said.\n\n"
-                    + "Speaker 3: Nice. Can we still go back 31 days for the daily revenue?\n\n"
-                    + "Speaker 2: Sure, that is one click now.\n\nSpeaker 1: Perfect, then let's ship it on Friday.",
-                "Spreker 1: Goedemorgen! Zullen we met het nieuwe dashboard beginnen?\n\n"
-                    + "Spreker 2: Ja. Ik heb de datumkiezer op maand tot nu gezet, zoals afgesproken.\n\n"
-                    + "Spreker 3: Mooi. Kunnen we voor de dagomzet nog steeds 31 dagen terug?\n\n"
-                    + "Spreker 2: Zeker, dat is nu één klik.\n\nSpreker 1: Top, dan zetten we het vrijdag live.")
-            let file = URL(fileURLWithPath: "/Users/you/Recordings/team-meeting.m4a")
+                "Speaker 1: Okay, quick plan for the weekend trip. Train or car?\n\n"
+                    + "Speaker 2: Train! I'm not driving four hours again.\n\n"
+                    + "Speaker 3: Agreed. And who brings the speaker for the beach?\n\n"
+                    + "Speaker 2: Me, it's charged and ready.\n\nSpeaker 1: Perfect, I'll book the tickets tonight.",
+                "Spreker 1: Oké, even een plan voor het weekendje weg. Trein of auto?\n\n"
+                    + "Spreker 2: Trein! Ik ga niet nog een keer vier uur rijden.\n\n"
+                    + "Spreker 3: Eens. En wie neemt de speaker mee naar het strand?\n\n"
+                    + "Spreker 2: Ik, hij is al opgeladen.\n\nSpreker 1: Top, dan boek ik vanavond de kaartjes.")
+            let file = URL(fileURLWithPath: "/Users/you/Recordings/weekend-plans.m4a")
             image = snapshot(ContentView(file: file, speakers: true, transcriber: sample), size: Skin.size)
         default: image = snapshot(ContentView(), size: Skin.size)
         }
