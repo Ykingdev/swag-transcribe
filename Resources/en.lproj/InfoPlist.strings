@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "Live transcription uses the microphone.";
+"NSSpeechRecognitionUsageDescription" = "Live transcription uses on-device speech recognition.";

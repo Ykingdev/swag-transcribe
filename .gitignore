@@ -1,0 +1,8 @@
+# SwiftPM build output and caches
+.build/
+.swiftpm/
+
+# Built app bundle, recreated by build.sh
+swag-transcribe.app/
+
+.DS_Store
